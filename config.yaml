@@ -8,11 +8,11 @@
 # start_flush: toggles if redis/kafka should be flushed at the start. Primarily for debugging, it will flush ALL of redis/kafka
 cache: redis
 
-kafka:
-    # ip/port are for the bootstrap server
-    ip: '127.0.0.1'
-    port: 9092
-    start_flush: true
+# kafka:
+#     # ip/port are for the bootstrap server
+#     ip: '127.0.0.1'
+#     port: 9092
+#     start_flush: true
 redis:
     ip: '127.0.0.1'
     port: 6379
@@ -88,21 +88,21 @@ write_on_stop: false
 # Defaults to sequential writes (1 thread)
 num_write_threads: 1
 
-# Configurable passthrough for data - data will be sent in realtime (no aggregation in redis).
-# To disable, remove
-pass_through:
-    type: zmq
-    host: '127.0.0.1'
-    port: 5678
+# # Configurable passthrough for data - data will be sent in realtime (no aggregation in redis).
+# # To disable, remove
+# pass_through:
+#     type: zmq
+#     host: '127.0.0.1'
+#     port: 5678
 
 
-elastic:
-    host: 'http://127.0.0.1:9200'
-    user: null
-    token: null
-    shards: 10
-    replicas: 0
-    refresh_interval: '30s'
+# elastic:
+#     host: 'http://127.0.0.1:9200'
+#     user: null
+#     token: null
+#     shards: 10
+#     replicas: 0
+#     refresh_interval: '30s'
 
 # Cryptostore only works with InfluxDB 2.x
 influx:
@@ -111,64 +111,64 @@ influx:
     org: None
     token: None
 
-# Parquet specific options. Parquet will default to storing the data on disk unless these are specified
-parquet:
-    # If storing the data to an external source (like S3) toggle this to enable the removal of the local file after
-    # writing to external store
-    del_file: true
-    # Append X times a parquet file before creating a new one to store data.
-    # This feature allows dumping frequently data from Redis (as defined by 'storage_interval'), while writing less frequently new parquet files.
-    # Remove this parameter or set it to 0 to write a new file each 'storage_interval' (appending is then disabled).
-    # Beware that a parquet file not properly closed cannot be read back. Closing is made at the last appending iteration.
-    append_counter: 4
-    # File name format, as a list of arguments. Default is <exchange>-<data_type>-<symbol>-<timestamp>.parquet, which would be exchange, data_type, symbol, timestamp
-    # Can specify any combination exchange, data_type, symbol, and timestamp
-    # timestamp MUST be present.
-    # examples:
-    #    symbol,timestamp
-    #    timestamp
-    #    timestamp,exchange
-    #    etc
-    file_format: [exchange, symbol, data_type, timestamp]
-    # A compression codec (and level if relevant) can be defined to compress data when writing parquet file.
-    # Compression is managed by use of `pyarrow.parquet.write_table()` interface.
-    # Compression codecs (and levels in parentheses) are: NONE, SNAPPY, GZIP (1 to 9), BROTLI (1 to 11), LZ4 (1 is forced) & ZSTD (1 to 22).
-    # You can remove these keywords if you don't want to compress the data. As a proposal, BROTLI appears especially efficient.
-    compression:
-        codec: 'BROTLI'
-        level: 6
-    # Path controls where the file is written (if not using S3/GC) If null, will write to CWD. Must be absolute path.
-    path: null
-    # Automatically groups all paquet files in a folder YYYY-MM-DD both on the local filesystem, as well as on the cloud storage engine.
-    # Setting prefix on the cloud storage engine will override this setting.
-    prefix_date: false
+# # Parquet specific options. Parquet will default to storing the data on disk unless these are specified
+# parquet:
+#     # If storing the data to an external source (like S3) toggle this to enable the removal of the local file after
+#     # writing to external store
+#     del_file: true
+#     # Append X times a parquet file before creating a new one to store data.
+#     # This feature allows dumping frequently data from Redis (as defined by 'storage_interval'), while writing less frequently new parquet files.
+#     # Remove this parameter or set it to 0 to write a new file each 'storage_interval' (appending is then disabled).
+#     # Beware that a parquet file not properly closed cannot be read back. Closing is made at the last appending iteration.
+#     append_counter: 4
+#     # File name format, as a list of arguments. Default is <exchange>-<data_type>-<symbol>-<timestamp>.parquet, which would be exchange, data_type, symbol, timestamp
+#     # Can specify any combination exchange, data_type, symbol, and timestamp
+#     # timestamp MUST be present.
+#     # examples:
+#     #    symbol,timestamp
+#     #    timestamp
+#     #    timestamp,exchange
+#     #    etc
+#     file_format: [exchange, symbol, data_type, timestamp]
+#     # A compression codec (and level if relevant) can be defined to compress data when writing parquet file.
+#     # Compression is managed by use of `pyarrow.parquet.write_table()` interface.
+#     # Compression codecs (and levels in parentheses) are: NONE, SNAPPY, GZIP (1 to 9), BROTLI (1 to 11), LZ4 (1 is forced) & ZSTD (1 to 22).
+#     # You can remove these keywords if you don't want to compress the data. As a proposal, BROTLI appears especially efficient.
+#     compression:
+#         codec: 'BROTLI'
+#         level: 6
+#     # Path controls where the file is written (if not using S3/GC) If null, will write to CWD. Must be absolute path.
+#     path: null
+#     # Automatically groups all paquet files in a folder YYYY-MM-DD both on the local filesystem, as well as on the cloud storage engine.
+#     # Setting prefix on the cloud storage engine will override this setting.
+#     prefix_date: false
 
-    S3:
-        # endpoint allows you to override the write endpoint and write to other provicers that have the same API interface
-        # If key_id/secret are NULL boto will default to using ENV vars or credentials file
-        # prefix: a prefix to append to the default data path.
-        endpoint: null
-        key_id: null
-        secret: null
-        bucket: null
-        prefix: null
-    GCS:
-        # path to service account key, if null will default to using env vars or auth tokens
-        # on GCE node
-        # prefix: a prefix to append to the default data path
-        service_account: null
-        bucket: null
-        prefix: null
-    GD:
-        # Google Drive connector.
-        # `service_account` is the path to service account key file. If null,
-        # will default to using ENV var.
-        # `prefix` is the folder name where to store files. This folder has to
-        # exist, it will not be created.
-        service_account: null
-        prefix: null
-        # Separator between `exchange`, `data_type`, and `symbol` in Google Drive folder name.
-        folder_name_sep: '.'
+#     S3:
+#         # endpoint allows you to override the write endpoint and write to other provicers that have the same API interface
+#         # If key_id/secret are NULL boto will default to using ENV vars or credentials file
+#         # prefix: a prefix to append to the default data path.
+#         endpoint: null
+#         key_id: null
+#         secret: null
+#         bucket: null
+#         prefix: null
+#     GCS:
+#         # path to service account key, if null will default to using env vars or auth tokens
+#         # on GCE node
+#         # prefix: a prefix to append to the default data path
+#         service_account: null
+#         bucket: null
+#         prefix: null
+#     GD:
+#         # Google Drive connector.
+#         # `service_account` is the path to service account key file. If null,
+#         # will default to using ENV var.
+#         # `prefix` is the folder name where to store files. This folder has to
+#         # exist, it will not be created.
+#         service_account: null
+#         prefix: null
+#         # Separator between `exchange`, `data_type`, and `symbol` in Google Drive folder name.
+#         folder_name_sep: '.'
 
 # arctic specific configuration options - the mongo URL
 arctic: mongodb://127.0.0.1
